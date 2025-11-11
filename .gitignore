@@ -1,0 +1,12 @@
+credentials.json
+hardware_prices.json
+output.json
+
+.idea/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+logs/
+output/
+*.log
