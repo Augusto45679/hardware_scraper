@@ -1,0 +1,6 @@
+Scrapy
+scrapy-playwright
+gspread
+oauth2client
+pandas
+playwright

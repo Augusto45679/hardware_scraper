@@ -44,6 +44,16 @@ Sigue estos pasos para configurar el entorno de desarrollo y poder ejecutar el s
     ```bash
     pip install -r requirements.txt
     ```
+4.  **Instala Playwright y sus navegadores:**
+
+    Este proyecto utiliza `scrapy-playwright` para interactuar con páginas web dinámicas. Necesitas instalarlo y luego descargar los navegadores que utiliza.
+
+    ```bash
+    # Instala la librería de integración
+    pip install scrapy-playwright
+    # Descarga e instala los navegadores (Chromium, Firefox, WebKit)
+    playwright install
+    ```
 
 ## ¿Cómo ejecutar el Scraper?
 
