@@ -12,6 +12,7 @@
 
 # useful for handling different item types with a single interface
 import json
+from datetime import datetime
 from itemadapter import ItemAdapter
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -43,7 +44,7 @@ class GoogleSheetsPipeline:
         self.sheet = None
         self.header_written = False
         # Define el orden deseado para las columnas en la hoja de cálculo
-        self.column_order = ['product_id', 'product_name', 'price', 'store', 'link']
+        self.column_order = ['product_id', 'product_name', 'price', 'store', 'link', 'date']
         # El campo 'currency' se omitirá de la hoja de cálculo
 
         self.existing_links = set()
@@ -79,6 +80,12 @@ class GoogleSheetsPipeline:
                 self.sheet.append_row(headers, value_input_option='USER_ENTERED')
                 self.header_written = True
             else:
+                # Si no está vacía, verifica si falta la columna 'date'
+                current_headers = all_values[0]
+                if 'date' not in current_headers:
+                    spider.logger.info("Agregando columna 'date' a los encabezados existentes...")
+                    self.sheet.update_cell(1, len(current_headers) + 1, 'date')
+
                 # Si no está vacía, calcula el siguiente ID y carga los links
                 spider.logger.info("Cargando links existentes para de-duplicación...")
                 # Extrae los valores de las columnas de una sola vez
@@ -127,10 +134,13 @@ class GoogleSheetsPipeline:
 
         adapter = ItemAdapter(item)
         item_link = adapter.get('link')
+        
+        # Agregamos la fecha actual
+        adapter['date'] = datetime.now().strftime("%Y-%m-%d")
 
-        if item_link in self.existing_links:
-            spider.logger.debug(f"Item duplicado omitido: {adapter.get('product_name')}")
-            return item  # Omite el item
+        # if item_link in self.existing_links:
+        #     spider.logger.debug(f"Item duplicado omitido: {adapter.get('product_name')}")
+        #     return item  # Omite el item
 
         # Asigna el nuevo ID único
         adapter['product_id'] = self.product_id_counter

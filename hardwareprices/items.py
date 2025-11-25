@@ -14,3 +14,4 @@ class HardwarepricesItem(scrapy.Item):
     currency = scrapy.Field()
     link = scrapy.Field()
     store = scrapy.Field()
+    date = scrapy.Field()
