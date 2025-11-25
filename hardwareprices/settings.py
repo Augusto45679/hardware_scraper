@@ -64,10 +64,11 @@ DOWNLOAD_HANDLERS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   # La pipeline original que guarda en JSON. Puedes comentarla si ya no la necesitas.
-   # "hardwareprices.pipelines.HardwarepricesPipeline": 300,
-   # La nueva pipeline para Google Sheets. El número indica el orden de ejecución.
-   "hardwareprices.pipelines.GoogleSheetsPipeline": 400,
+   "hardwareprices.pipelines.cleaning.CleaningPipeline": 100,
+   "hardwareprices.pipelines.validation.ValidationPipeline": 200,
+   "hardwareprices.pipelines.deduplication.DeduplicationPipeline": 300,
+   "hardwareprices.pipelines.storage.JsonWriterPipeline": 400,
+   "hardwareprices.pipelines.storage.GoogleSheetsPipeline": 500,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

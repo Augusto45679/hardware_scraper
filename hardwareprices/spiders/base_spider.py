@@ -1,5 +1,6 @@
 import scrapy
 from urllib.parse import quote_plus
+from datetime import datetime
 from hardwareprices.items import HardwarepricesItem
 from scrapy_playwright.page import PageMethod
 
@@ -77,7 +78,8 @@ class BaseHardwareSpider(scrapy.Spider):
 
         for product_selector in products:
             item = self.parse_product(product_selector, response)
-            if item.get('product_name') and item.get('price'):
+            # Verificamos campos clave antes de hacer yield
+            if item.get('product_name') and item.get('price_current'):
                 yield item
 
         # --- Manejo de Paginación ---
@@ -93,21 +95,29 @@ class BaseHardwareSpider(scrapy.Spider):
         Extrae los datos de un único producto usando los selectores definidos.
         """
         item = self.item_class()
-        item['store'] = self.name
-        item['currency'] = '$' # Moneda por defecto, puede ser sobreescrita.
-
-        # Extracción de datos usando los selectores del spider hijo.
+        
+        # --- Campos Base ---
+        item['store_id'] = self.name
+        item['store_name'] = self.name.capitalize() # Simple default, puede mejorarse
+        item['currency'] = 'ARS' # Default para tiendas argentinas
+        item['scraped_at'] = datetime.utcnow().isoformat()
+        
+        # --- Extracción con Selectores ---
         if 'name' in self.selectors:
             item['product_name'] = product_selector.css(self.selectors['name']).get('').strip()
         
+        # Precio: extraemos el string crudo, el pipeline se encarga de limpiar
         price_str = product_selector.css(self.selectors['price']).get()
-        if price_str:
-            item['price'] = self._clean_price(price_str)
-
+        item['price_current'] = price_str # Pasamos el string crudo
+        
+        # URL
         url_path = product_selector.css(self.selectors['url']).get()
         if url_path:
-            item['link'] = response.urljoin(url_path)
-
+            item['product_url'] = response.urljoin(url_path)
+            
+        # --- Campos Opcionales (si los selectores existen) ---
+        # item['image_url'] = ...
+        
         return item
 
     def get_next_page(self, response):
@@ -121,17 +131,3 @@ class BaseHardwareSpider(scrapy.Spider):
         
         next_page_url = response.css(next_page_selector).get()
         return response.urljoin(next_page_url) if next_page_url else None
-
-    def _clean_price(self, price_str: str) -> int:
-        """
-        Limpia un string de precio, eliminando símbolos y puntos, y lo convierte a entero.
-        """
-        if not price_str:
-            return 0
-        # Elimina el símbolo de la moneda, puntos, comas y espacios en blanco.
-        cleaned_price = price_str.replace('$', '').replace('.', '').replace(',', '').strip()
-        try:
-            return int(cleaned_price)
-        except (ValueError, TypeError):
-            self.logger.warning(f"No se pudo convertir el precio '{price_str}' a un número.")
-            return 0

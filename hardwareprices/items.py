@@ -7,11 +7,37 @@ import scrapy
 
 
 class HardwarepricesItem(scrapy.Item):
-    # define the fields for your item here like:
-    product_id = scrapy.Field()
-    product_name = scrapy.Field()
-    price = scrapy.Field()
-    currency = scrapy.Field()
-    link = scrapy.Field()
-    store = scrapy.Field()
-    date = scrapy.Field()
+    # --- Identificadores ---
+    product_id = scrapy.Field()      # Hash único del producto (generado internamente)
+    store_id = scrapy.Field()        # Identificador de la tienda (e.g., 'compragamer')
+    store_name = scrapy.Field()      # Nombre legible de la tienda
+    external_id = scrapy.Field()     # ID del producto en la tienda (SKU/ID externo)
+    
+    # --- Información del Producto ---
+    product_name = scrapy.Field()    # Título original
+    brand = scrapy.Field()           # Marca normalizada
+    model = scrapy.Field()           # Modelo específico
+    category = scrapy.Field()        # Categoría normalizada
+    subcategory = scrapy.Field()     # Subcategoría (opcional)
+    specs_raw = scrapy.Field()       # Diccionario con specs crudas
+    specs_normalized = scrapy.Field() # Diccionario con specs normalizadas
+    
+    # --- Precios y Disponibilidad ---
+    price_original = scrapy.Field()  # Precio de lista (sin descuento)
+    price_current = scrapy.Field()   # Precio actual de venta
+    currency = scrapy.Field()        # Moneda (ARS, USD)
+    discount_percentage = scrapy.Field() # Porcentaje de descuento calculado
+    availability = scrapy.Field()    # 'in_stock', 'out_of_stock', 'preorder'
+    shipping_cost = scrapy.Field()   # Costo de envío (si está disponible)
+    
+    # --- Metadata ---
+    product_url = scrapy.Field()     # URL del producto
+    image_url = scrapy.Field()       # URL de la imagen principal
+    rating = scrapy.Field()          # Puntuación (si existe)
+    reviews_count = scrapy.Field()   # Cantidad de reviews
+    
+    # --- Auditoría ---
+    scraped_at = scrapy.Field()      # Fecha y hora del scrape (UTC)
+    last_seen_at = scrapy.Field()    # Fecha de la última vez que se vio (para histórico)
+    content_hash = scrapy.Field()    # Hash del contenido para detectar cambios
+
