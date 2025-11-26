@@ -62,7 +62,14 @@ class GoogleSheetsPipeline:
         if self.items_buffer and self.sheet:
             try:
                 spider.logger.info(f"Escribiendo {len(self.items_buffer)} items a Google Sheets...")
-                self.sheet.append_rows(self.items_buffer, value_input_option='USER_ENTERED')
+                
+                # Calculamos explícitamente la próxima fila vacía para forzar la escritura en la columna A
+                # Esto evita que gspread detecte erróneamente el final de la tabla y escriba en columnas desplazadas
+                all_values = self.sheet.get_all_values()
+                next_row = len(all_values) + 1
+                range_start = f"A{next_row}"
+                
+                self.sheet.update(range_name=range_start, values=self.items_buffer, value_input_option='USER_ENTERED')
             except Exception as e:
                 spider.logger.error(f"Error escribiendo en Google Sheets: {e}")
 
