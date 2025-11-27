@@ -67,11 +67,12 @@ ITEM_PIPELINES = {
    'hardwareprices.pipelines.cleaning.CleaningPipeline': 100,
    'hardwareprices.pipelines.validation.ValidationPipeline': 200,
    'hardwareprices.pipelines.deduplication.DeduplicationPipeline': 300,
-   'scrapy.pipelines.images.ImagesPipeline': 400, # Pipeline nativo de Scrapy para imágenes
+   'hardwareprices.pipelines.images.CustomImagesPipeline': 400, # Pipeline personalizado para imágenes
    'hardwareprices.pipelines.mongo.MongoPipeline': 500, # Nuestro pipeline personalizado para Mongo
    # 'hardwareprices.pipelines.storage.JsonWriterPipeline': 400, # Desactivado
    # 'hardwareprices.pipelines.storage.GoogleSheetsPipeline': 500, # Desactivado
 }
+
 
 # --- Configuración de MongoDB ---
 MONGO_URI = 'mongodb://localhost:27017'

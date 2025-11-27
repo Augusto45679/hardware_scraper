@@ -42,22 +42,22 @@ class MongoPipeline:
 
         if images and len(images) > 0:
             # ImagesPipeline guarda una lista de dicts. Tomamos el path del primero.
-            # Ejemplo: [{'url': '...', 'path': 'full/hash.jpg', 'checksum': '...'}]
+            # Ejemplo: [{'url': '...', 'path': 'full/product_id.jpg', 'checksum': '...'}]
             image_path = images[0].get('path')
+            
+            # Aseguramos que el path sea relativo como pide el usuario: "scraped_images/full/..."
+            # El pipeline devuelve "full/...", así que prependeamos "scraped_images/"
+            if not image_path.startswith('scraped_images/'):
+                image_path = f"scraped_images/{image_path}"
+                
             adapter['image_path'] = image_path # Guardamos el path local en el item
             spider.logger.info(f"DEBUG - Image Path Extracted from Pipeline: {image_path}")
-        elif image_urls and len(image_urls) > 0:
-            # FALLBACK: Si ImagesPipeline no llenó el campo 'images' (por razón desconocida),
-            # calculamos manualmente dónde DEBERÍA estar la imagen.
-            # Scrapy por defecto usa el hash SHA1 de la URL.
-            first_image_url = image_urls[0]
-            image_guid = hashlib.sha1(first_image_url.encode('utf-8')).hexdigest()
-            image_path = f'full/{image_guid}.jpg'
-            adapter['image_path'] = image_path
-            spider.logger.warning(f"DEBUG - Image Path Calculated Manually (Fallback): {image_path}")
-            spider.logger.warning("DEBUG - Check if 'ImagesPipeline' is enabled in settings and if 'scraped_images' folder is writable.")
         else:
             spider.logger.warning(f"DEBUG - No images found for product: {adapter.get('product_name')}")
+            # Si no hay imagen descargada, intentamos ver si hay URL para loggear
+            if image_urls:
+                 spider.logger.warning(f"DEBUG - Image URLs were present but download failed or pipeline skipped: {image_urls}")
+
 
         # Convertir a dict para Mongo
         item_dict = adapter.asdict()

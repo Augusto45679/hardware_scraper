@@ -90,5 +90,7 @@ class MercadolibreSpider(BaseHardwareSpider):
             image_url = response.urljoin(image_url)
             item['image_url'] = image_url
             item['image_urls'] = [image_url] # Lista estricta para pipeline
+        else:
+            item['image_urls'] = []
 
         return item
