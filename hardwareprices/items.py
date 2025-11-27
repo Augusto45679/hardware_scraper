@@ -33,6 +33,9 @@ class HardwarepricesItem(scrapy.Item):
     # --- Metadata ---
     product_url = scrapy.Field()     # URL del producto
     image_url = scrapy.Field()       # URL de la imagen principal
+    image_urls = scrapy.Field()      # Lista de URLs para el ImagesPipeline
+    images = scrapy.Field()          # Resultados de la descarga (path, checksum, etc.)
+    image_path = scrapy.Field()      # Ruta local de la imagen (calculada o extraída)
     rating = scrapy.Field()          # Puntuación (si existe)
     reviews_count = scrapy.Field()   # Cantidad de reviews
     

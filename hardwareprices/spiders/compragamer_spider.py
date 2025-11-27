@@ -18,6 +18,12 @@ class CompragamerSpider(BaseHardwareSpider):
         'price': 'span.txt_price::text',
         'url': 'a.product-card::attr(href)',
         'next_page': 'a.page-link[rel="next"]::attr(href)', # Selector para el botón "siguiente"
+        # Imagen: CompraGamer usa lazy loading a veces, o paths relativos
+        'image_candidates': [
+            'div.product-card__image-container img::attr(src)', 
+            'cgw-item-image img::attr(src)',
+            'img.product-card__image::attr(src)',
+        ]
     }
 
     def get_next_page(self, response):
@@ -28,3 +34,29 @@ class CompragamerSpider(BaseHardwareSpider):
         if not response.css(self.selectors['product_container']):
             return None # No hay productos, fin de la paginación.
         return super().get_next_page(response)
+
+    def parse_product(self, product_selector, response):
+        """
+        Sobreescribimos para manejar URLs relativas de imágenes y lazy loading.
+        """
+        item = super().parse_product(product_selector, response)
+        
+        # --- Extracción Robusta de Imagen ---
+        image_url = None
+        for selector in self.selectors.get('image_candidates', []):
+            img_candidate = product_selector.css(selector).get()
+            if img_candidate:
+                image_url = img_candidate
+                break
+        
+        if image_url:
+            # CompraGamer suele usar URLs relativas tipo /imagenes/productos/...
+            # Aseguramos que sea absoluta
+            full_image_url = response.urljoin(image_url)
+            
+            # Validación extra: a veces ponen un placeholder si no hay imagen
+            if 'sin_imagen' not in full_image_url:
+                item['image_url'] = full_image_url
+                item['image_urls'] = [full_image_url] # Lista requerida por ImagesPipeline
+
+        return item

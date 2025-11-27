@@ -65,3 +65,5 @@ scrapy crawl <nombre_del_spider> -O output.csv
 
 *   Reemplaza `<nombre_del_spider>` con el nombre real de tu spider (definido dentro de la clase de tu spider, ej: `name = 'mi_spider'`).
 *   La opción `-O output.csv` guardará los datos extraídos en un archivo llamado `output.csv`. Puedes cambiar el formato a `json`, `xml`, etc., y también el nombre del archivo.
+
+playwright install 

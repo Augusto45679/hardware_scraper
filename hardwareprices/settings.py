@@ -64,12 +64,32 @@ DOWNLOAD_HANDLERS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "hardwareprices.pipelines.cleaning.CleaningPipeline": 100,
-   "hardwareprices.pipelines.validation.ValidationPipeline": 200,
-   "hardwareprices.pipelines.deduplication.DeduplicationPipeline": 300,
-   "hardwareprices.pipelines.storage.JsonWriterPipeline": 400,
-   "hardwareprices.pipelines.storage.GoogleSheetsPipeline": 500,
+   'hardwareprices.pipelines.cleaning.CleaningPipeline': 100,
+   'hardwareprices.pipelines.validation.ValidationPipeline': 200,
+   'hardwareprices.pipelines.deduplication.DeduplicationPipeline': 300,
+   'scrapy.pipelines.images.ImagesPipeline': 400, # Pipeline nativo de Scrapy para imágenes
+   'hardwareprices.pipelines.mongo.MongoPipeline': 500, # Nuestro pipeline personalizado para Mongo
+   # 'hardwareprices.pipelines.storage.JsonWriterPipeline': 400, # Desactivado
+   # 'hardwareprices.pipelines.storage.GoogleSheetsPipeline': 500, # Desactivado
 }
+
+# --- Configuración de MongoDB ---
+MONGO_URI = 'mongodb://localhost:27017'
+MONGO_DATABASE = 'hardware_db'
+MONGO_COLLECTION = 'products'
+
+import os
+
+# --- Configuración de Imágenes ---
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IMAGES_STORE = os.path.join(BASE_DIR, 'scraped_images') # Ruta absoluta
+IMAGES_URLS_FIELD = 'image_urls'
+IMAGES_RESULT_FIELD = 'images'
+IMAGES_EXPIRES = 90  # 90 days of delay for image expiration
+IMAGES_MIN_HEIGHT = 10 # Min height
+IMAGES_MIN_WIDTH = 10  # Min width
+MEDIA_ALLOW_REDIRECTS = True # Allow redirects for images
+# IMAGES_THUMBS = { 'small': (50, 50), 'big': (270, 270) } # Opcional: Generar miniaturas
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

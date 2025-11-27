@@ -20,6 +20,15 @@ class MercadolibreSpider(BaseHardwareSpider):
         'currency': 'span.andes-money-amount__currency-symbol::text',
         # paginación (si no funciona ajustamos según el HTML real)
         'next_page': 'li.andes-pagination__button--next a::attr(href)',
+        # Imagen: selectores para intentar capturar la mejor calidad
+        'image_candidates': [
+            'img.poly-component__picture::attr(data-src)',  # Lazy load high res
+            'img.poly-component__picture::attr(src)',       # Standard src
+            'div.poly-card__portada img::attr(data-src)',   # Variación de layout
+            'div.poly-card__portada img::attr(src)',        # Variación de layout standard
+            'img.ui-search-result-image__element::attr(data-src)', # Legacy layout
+            'img.ui-search-result-image__element::attr(src)',      # Legacy layout standard
+        ]
     }
 
     def start_requests(self):
@@ -34,14 +43,15 @@ class MercadolibreSpider(BaseHardwareSpider):
         - fallback para price
         - fallback para nombre
         - limpieza de link y moneda
+        - Extracción robusta de imagen
         """
         item = super().parse_product(product_selector, response)
 
         # Si base no encontró precio, intentamos alternativa
-        if not item.get('price'):
+        if not item.get('price_current'): # Nota: base_spider usa price_current
             alt = product_selector.css(self.selectors.get('price_alt', '')).get()
             if alt:
-                item['price'] = self._clean_price(alt)
+                item['price_current'] = alt # El pipeline limpiará esto
 
         # Si base no encontró name, intentamos alternativas observadas
         if not item.get('product_name'):
@@ -56,7 +66,29 @@ class MercadolibreSpider(BaseHardwareSpider):
             item['currency'] = cur.strip()
 
         # Limpieza de link (quita tracking después de #)
-        if item.get('link'):
-            item['link'] = item['link'].split('#')[0].strip()
+        if item.get('product_url'):
+            item['product_url'] = item['product_url'].split('#')[0].strip()
+
+        # --- Extracción Robusta de Imagen ---
+        # Iteramos sobre candidatos hasta encontrar uno válido
+        image_url = None
+        for selector in self.selectors.get('image_candidates', []):
+            img_candidate = product_selector.css(selector).get()
+            if img_candidate:
+                # A veces vienen imágenes base64 o placeholders, filtramos si es necesario
+                if 'http' in img_candidate: 
+                    image_url = img_candidate
+                    break
+        
+        if image_url:
+            # Intento de mejora de calidad (hack común en ML: cambiar tamaño en URL si es posible)
+            # ML suele tener urls tipo .../D_NQ_NP_XXXXXX-O.webp
+            # Si encontramos una versión pequeña, a veces no hay mucho que hacer sin entrar al producto,
+            # pero priorizamos data-src que suele ser la mejor.
+            
+            # Asegurar absoluta
+            image_url = response.urljoin(image_url)
+            item['image_url'] = image_url
+            item['image_urls'] = [image_url] # Lista estricta para pipeline
 
         return item

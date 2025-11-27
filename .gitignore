@@ -1,6 +1,8 @@
 credentials.json
 hardware_prices.json
 output.json
+scraped_images/
+
 
 .idea/
 venv/
