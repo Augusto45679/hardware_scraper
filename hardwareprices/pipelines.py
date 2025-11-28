@@ -238,3 +238,5 @@ class MongoPipeline:
             spider.logger.error(f"Error guardando en MongoDB: {e}")
 
         return item
+
+

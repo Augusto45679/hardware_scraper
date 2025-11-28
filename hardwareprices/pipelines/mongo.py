@@ -52,6 +52,7 @@ class MongoPipeline:
                 
             adapter['image_path'] = image_path # Guardamos el path local en el item
             spider.logger.info(f"DEBUG - Image Path Extracted from Pipeline: {image_path}")
+            spider.logger.info(f"DEBUG - Final Image URL: {adapter.get('image_url')}")
         else:
             spider.logger.warning(f"DEBUG - No images found for product: {adapter.get('product_name')}")
             # Si no hay imagen descargada, intentamos ver si hay URL para loggear

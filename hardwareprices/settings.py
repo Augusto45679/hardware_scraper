@@ -67,10 +67,9 @@ ITEM_PIPELINES = {
    'hardwareprices.pipelines.cleaning.CleaningPipeline': 100,
    'hardwareprices.pipelines.validation.ValidationPipeline': 200,
    'hardwareprices.pipelines.deduplication.DeduplicationPipeline': 300,
-   'hardwareprices.pipelines.images.CustomImagesPipeline': 400, # Pipeline personalizado para imágenes
-   'hardwareprices.pipelines.mongo.MongoPipeline': 500, # Nuestro pipeline personalizado para Mongo
-   # 'hardwareprices.pipelines.storage.JsonWriterPipeline': 400, # Desactivado
-   # 'hardwareprices.pipelines.storage.GoogleSheetsPipeline': 500, # Desactivado
+   'hardwareprices.pipelines.images.CustomImagesPipeline': 400, 
+   'hardwareprices.pipelines.cloudinary.SmartCloudinaryPipeline': 600, 
+   'hardwareprices.pipelines.mongo.MongoPipeline': 700,
 }
 
 
@@ -80,6 +79,17 @@ MONGO_DATABASE = 'hardware_db'
 MONGO_COLLECTION = 'products'
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv() # Carga las variables del archivo .env
+
+# --- Configuración de Cloudinary ---
+# Las credenciales se cargan desde variables de entorno
+CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
+CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
+
+# --- Configuración de Imágenes ---
 
 # --- Configuración de Imágenes ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

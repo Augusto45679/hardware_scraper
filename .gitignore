@@ -3,6 +3,8 @@ hardware_prices.json
 output.json
 scraped_images/
 
+.env
+.env.example
 
 .idea/
 venv/

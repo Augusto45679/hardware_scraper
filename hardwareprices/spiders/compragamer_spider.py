@@ -20,9 +20,10 @@ class CompragamerSpider(BaseHardwareSpider):
         'next_page': 'a.page-link[rel="next"]::attr(href)', # Selector para el botón "siguiente"
         # Imagen: CompraGamer usa lazy loading a veces, o paths relativos
         'image_candidates': [
-            'div.product-card__image-container img::attr(src)', 
             'cgw-item-image img::attr(src)',
+            'div.product-card__image-container img::attr(src)', 
             'img.product-card__image::attr(src)',
+            'img::attr(src)', # Fallback genérico
         ]
     }
 
@@ -97,5 +98,9 @@ class CompragamerSpider(BaseHardwareSpider):
                 item['image_urls'] = [full_image_url] # Lista requerida por ImagesPipeline
         else:
              item['image_urls'] = [] # Asegurar que sea lista vacía si no hay imagen
+             # DEBUG: Imprimir HTML si falla
+             self.logger.warning(f"DEBUG HTML CARD: {product_selector.get()}")
+
+        self.logger.warning(f"DEBUG SPIDER - URL ENCONTRADA: {item.get('image_urls')}")
 
         return item

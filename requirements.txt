@@ -1,4 +1,5 @@
 Scrapy
+Scrapy
 scrapy-playwright
 gspread
 oauth2client
@@ -6,3 +7,5 @@ pandas
 playwright
 pymongo
 Pillow
+python-dotenv
+cloudinary
